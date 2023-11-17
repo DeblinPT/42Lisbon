@@ -6,51 +6,106 @@
 /*   By: adimas-d <adimas-d@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 16:52:26 by adimas-d          #+#    #+#             */
-/*   Updated: 2023/06/21 20:11:00 by adimas-d         ###   ########.fr       */
+/*   Updated: 2023/08/14 01:16:31 by adimas-d         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libftprintf.h"
+#include "ft_printf.h"
 #include "ft_bonus.h"
 
-void	ft_pads(const char *flag, t_flg *flg1)
+void	ft_pads(const char **format, t_flg *flg1)
 {
 	int	pading;
 
 	pading = 0;
-	while (flag[flg1->i] > '0' && flag[flg1->i] < '9')
+	while (**format >= '0' && **format <= '9')
 	{
 		pading *= 10;
-		pading += flag[flg1->i];
-		flg1->i++;
+		pading += **format - '0';
+		(*format)++;
 	}
 	flg1->zero = pading;
 }
 
-void	ft_flags_bonus(const char *flag, t_flg *flg1)
+void	ft_add_space(const char **format, t_flg *flg1)
 {
-	while (flag[flg1->i] != '.' && flag[flg1->i] != '*' && flag[flg1->i] != 'c'
-		&& flag[flg1->i] != 's' && flag[flg1->i] != 'p' && flag[flg1->i] != 'd'
-		&& flag[flg1->i] != 'i' && flag[flg1->i] != 'u' && flag[flg1->i] != 'x'
-		&& flag[flg1->i] != 'X' && flag[flg1->i] != '%')
+	int	printlimit;
+
+	printlimit = 0;
+	while (**format >= '0' && **format <= '9')
 	{
-		if (flag[flg1->i] == '#')
-			flg1->hashtag = 1;
-		else if (flag[flg1->i] == '0')
-			ft_pads(flag, flg1);
-		else if (flag[flg1->i] == '-')
-		{
-			flg1->minus = 1;
-			flg1->zero = 0;
-		}
-		else if (flag[flg1->i] == '+')
-			flg1->plus = 1;
-		else if (flag[flg1->i] == ' ')
-		{
-			flg1->space = 1;
-			flg1->plus = 0;
-		}
-		flg1->i++;
+		printlimit *= 10;
+		printlimit += **format - '0';
+		(*format)++;
 	}
-	return ;
+	flg1->printlimit = printlimit;
+}
+
+void	ft_flags3_bonus(const char **format, t_flg *flg1)
+{
+	while (true)
+	{
+		if (**format == '.')
+		{
+			flg1->point = true;
+			(*format)++;
+			ft_precision_size(format, flg1);
+		}
+		else
+			break ;
+	}
+}
+
+void	ft_flags2_bonus(const char **format, t_flg *flg1)
+{
+	while (true)
+	{
+		if (**format == '-')
+		{
+			flg1->minus = true;
+			flg1->zero = false;
+			(*format)++;
+		}
+		else if (**format == '+')
+		{
+			flg1->plus = true;
+			(*format)++;
+		}
+		else if (**format == ' ')
+		{
+			flg1->space = true;
+			flg1->plus = false;
+			(*format)++;
+			ft_add_space(format, flg1);
+		}
+		else if (**format == '.')
+			ft_flags3_bonus(format, flg1);
+		else 
+			break ;
+	}
+}
+
+void	ft_flags1_bonus(const char **format, t_flg *flg1)
+{
+	while (true)
+	{
+		if (**format == '#')
+		{
+			flg1->hashtag = true;
+			(*format)++;
+		}
+		else if (**format == '0')
+		{
+			(*format)++;
+			if (flg1->minus == 0)
+				ft_pads(format, flg1);
+		}
+		else if (**format == '-' || **format == '+' || \
+				**format == ' ' || **format == '.')
+			ft_flags2_bonus(format, flg1);
+		else if (**format > '0' && **format <= '9')
+			ft_width_bonus(format, flg1);
+		else
+			break ;
+	}
 }

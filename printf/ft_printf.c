@@ -6,43 +6,42 @@
 /*   By: adimas-d <adimas-d@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/26 23:35:04 by adimas-d          #+#    #+#             */
-/*   Updated: 2023/06/21 20:06:00 by adimas-d         ###   ########.fr       */
+/*   Updated: 2023/08/16 15:31:53 by adimas-d         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libftprintf.h"
+#include "./ft_printf.h"
 
-/*
-Can use malloc, free, write, va_start, va_arg, va_copy, va_end
+int	ft_print_percent(char percent)
+{
+	ft_putchar_fd(percent, 1);
+	return (1);
+}
 
-Verify Flags
-"-", "+", " ", "#", "0"
-
-Verify Specifier
-c, s, p, d, i, u, x, X, %
-*/
-
-int	ft_specifier(va_list args, char specifier)
+int	ft_specifier(va_list args, const char *format, t_flg *flg1)
 {
 	int	printed;
 
 	printed = 0;
-	if (specifier == 'c')
-		printed += ft_print_char(va_arg(args, int));
-	else if (specifier == 's')
-		printed += ft_print_str(va_arg(args, char *));
-	else if (specifier == 'p')
-		printed += ft_print_addr(va_arg(args, size_t));
-	else if (specifier == 'd' || specifier == 'i')
-		printed += ft_print_nbr(va_arg(args, int));
-	else if (specifier == 'u')
-		printed += ft_print_nbr(va_arg(args, int));
-	else if (specifier == 'x')
-		printed += ft_print_hex(va_arg(args, int), "0123456789abcdef");
-	else if (specifier == 'X')
-		printed += ft_print_hex(va_arg(args, int), "0123456789ABCDEF");
-	else if (specifier == '%')
-		printed += ft_print_char('%');
+	if (*format == 'c')
+		printed += ft_print_char(va_arg(args, int), flg1);
+	else if (*format == 's')
+		printed += ft_str_error_check(va_arg(args, char *), flg1);
+	else if (*format == 'p')
+		printed += ft_print_addr(va_arg(args, size_t), flg1);
+	else if (*format == 'd' || *format == 'i')
+		printed += ft_print_nbr(va_arg(args, int), flg1);
+	else if (*format == 'u')
+		printed += ft_print_uns_nbr(va_arg(args, unsigned long),
+				"0123456789", flg1);
+	else if (*format == 'x')
+		printed += ft_print_base(va_arg(args, unsigned int),
+				"0123456789abcdef", flg1, "0x");
+	else if (*format == 'X')
+		printed += ft_print_base(va_arg(args, unsigned int),
+				"0123456789ABCDEF", flg1, "0X");
+	else if (*format == '%')
+		printed += ft_print_percent('%');
 	return (printed);
 }
 
@@ -52,24 +51,23 @@ int	ft_printf(const char *format, ...)
 	int		printed;
 	t_flg	flg1;
 
-	ft_memset(&flg1, 0, sizeof(flg1));
 	va_start(list, format);
 	printed = 0;
-	flg1.i = 0;
-	while (format[flg1.i])
+	while (*format)
 	{
-		if (format[flg1.i] == '%')
+		if (*format == '%')
 		{
-			flg1.i++;
-			ft_bonus(format, &flg1);
-			printed += ft_specifier(list, format[flg1.i]);
+			format++;
+			ft_memset(&flg1, 0, sizeof(flg1));
+			ft_bonus(&format, &flg1);
+			printed += ft_specifier(list, format, &flg1);
 		}
 		else
 		{
-			ft_putchar_fd(format[flg1.i], 1);
+			ft_putchar_fd(*format, 1);
 			printed++;
 		}
-		flg1.i++;
+		format++;
 	}
 	va_end(list);
 	return (printed);
