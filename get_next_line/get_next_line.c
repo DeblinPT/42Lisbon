@@ -33,7 +33,7 @@ char	*get_next_line(int fd)
 	return (line_to_write);
 }
 
-/*int	main(void)
+int	main(void)
 {
 	int		fd;
 	char	*line;
@@ -48,4 +48,4 @@ char	*get_next_line(int fd)
 	}
 	close(fd);
 	return (0);
-}*/
+}
