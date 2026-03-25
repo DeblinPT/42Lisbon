@@ -1,0 +1,30 @@
+FROM debian:oldstable
+
+ARG MAILHOG_VERSION=v1.0.1
+ENV MAILHOG_VERSION=${MAILHOG_VERSION}
+
+# Install required packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    iproute2 \
+    wget \
+    curl 
+    
+# Create non-root user
+RUN groupadd -r mailhog && useradd -r -g mailhog -s /usr/sbin/nologin -d /var/lib/mailhog mailhog \
+  && mkdir -p /var/lib/mailhog /etc/mailhog /var/log/mailhog \
+  && chown -R mailhog:mailhog /var/lib/mailhog /etc/mailhog /var/log/mailhog
+
+# Download MailHog binary (amd64). Change URL if you need a different arch/version.
+RUN wget -q -O /usr/local/bin/MailHog "https://github.com/mailhog/MailHog/releases/download/${MAILHOG_VERSION}/MailHog_linux_amd64" \
+  && chmod +x /usr/local/bin/MailHog
+
+USER mailhog
+WORKDIR /var/lib/mailhog
+
+EXPOSE 1025 8025
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s CMD curl -fsS http://127.0.0.1:8025/ || exit 1
+
+# Run MailHog listening on all interfaces (SMTP 1025, UI 8025)
+ENTRYPOINT ["/usr/local/bin/MailHog", "-smtp-bind-addr=0.0.0.0:1025", "-ui-bind-addr=0.0.0.0:8025"]

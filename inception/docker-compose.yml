@@ -1,0 +1,127 @@
+volumes:
+  wordpress:
+    name: wordpress
+    driver: local
+    driver_opts:
+      device: '/home/adimas-d/data/wordpress'
+      o: 'bind'
+      type: 'none'
+  mariadb:
+    name: mariadb
+    driver: local
+    driver_opts:
+      device: '/home/adimas-d/data/mariadb'
+      o: 'bind'
+      type: 'none'
+
+networks:
+  inception:
+    name: inception
+    driver: bridge
+
+services:
+  redis:
+    build: ./redis
+    container_name: redis
+    image: redis
+    restart: unless-stopped
+    expose:
+      - "6379"
+    networks:
+      - inception
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    image: nginx
+    restart: unless-stopped
+    depends_on:
+      - wordpress
+      - mailhog
+      - html
+    ports:
+      - "443:443"
+    env_file:
+      - .env
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - inception
+
+  wordpress:
+    build: ./wordpress
+    container_name: wordpress
+    image: wordpress
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+      - redis
+      - mailhog
+    env_file:
+      - .env
+    volumes:
+      - wordpress:/var/www/html
+    expose:
+      - "9000"
+      - "6379"
+    networks:
+      - inception
+
+  mariadb:
+    build: ./mariadb
+    container_name: mariadb
+    image: mariadb
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - mariadb:/var/lib/mysql
+    networks:
+      - inception
+
+  ftp:
+    build: ./ftp
+    container_name: ftp
+    image: ftp
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - mariadb
+    ports:
+      - "21:21"
+      - "21100-21110:21100-21110"
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - inception
+
+  adminer:
+    build: ./adminer
+    container_name: adminer
+    image: adminer
+    restart: unless-stopped
+    networks:
+      - inception
+    depends_on:
+      - mariadb
+
+  mailhog:
+    build: ./mailhog
+    container_name: mailhog
+    image: mailhog
+    restart: unless-stopped
+    expose:
+      - "1025"
+      - "8025"
+    networks:
+      - inception
+
+  html:
+    build: ./html
+    container_name: html
+    restart: unless-stopped
+    expose:
+      - "8080"
+    networks:
+      - inception

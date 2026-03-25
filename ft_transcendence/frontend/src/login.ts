@@ -1,0 +1,371 @@
+import './global.css'
+import { t } from './i18n';
+import { navigate } from './router';
+
+function updateLoginTranslations() {
+	const h1 = document.querySelector('h1');
+	if (h1) 
+		h1.textContent = t('auth.welcomeBack');
+	
+	const usernameInput = document.querySelector('input[data-auth="username"]') as HTMLInputElement;
+	if (usernameInput) 
+		usernameInput.placeholder = t('forms.username');
+	
+	const passwordInput = document.querySelector('input[type="password"]') as HTMLInputElement;
+	if (passwordInput) 
+		passwordInput.placeholder = t('forms.password');
+	
+	const loginButton = document.querySelector('button[type="submit"]') as HTMLButtonElement;
+	if (loginButton) 
+		loginButton.textContent = t('buttons.login');
+}
+
+export interface User {
+	id: number;
+	name: string;
+	info: string;
+	email: string;
+	online: boolean;
+}
+
+export interface LoginFlowOptions {
+	form?: HTMLFormElement;
+	heading?: HTMLHeadingElement;
+	submitButton?: HTMLButtonElement;
+	onSuccess?: () => void | Promise<void>;
+	onRequireTwoFA?: (user: any) => void;
+	onError?: (message: string) => void;
+}
+
+export async function loginWithCredentials(emailOrUser: string, password: string, options: LoginFlowOptions = {}) {
+	if (!emailOrUser) {
+		alert(t('validation.enterUsername'));
+		return;
+	}
+	if (!password) {
+		alert(t('validation.enterPassword'));
+		return;
+	}
+
+	const submitBtn = options.submitButton;
+	if (submitBtn)
+		submitBtn.disabled = true;
+
+	const credentials = {
+		emailOrUser,
+		password,
+	};
+
+	try {
+		const res = await fetch(`/api/login`, {
+			method: 'POST',
+			credentials: 'include',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(credentials),
+		});
+
+		const response = await res.json();
+
+		if (!response.success) {
+			const message = response.error || response.message || 'Login failed';
+			throw new Error(message);
+		}
+
+		const data = response.data || response;
+		const user = data.existingUser || data.user || response.user;
+
+		if (data.message === '2FA required' && user) {
+			if (options.onRequireTwoFA)
+				options.onRequireTwoFA(user);
+			else if (options.form && options.heading)
+				twoFALogin(options.form, options.heading, user);
+			return;
+		}
+
+		if (options.onSuccess)
+			await options.onSuccess();
+		else
+			navigate('/home');
+	}
+	catch (err) {
+		const error = err as Error;
+		if (options.onError)
+			options.onError(error.message);
+		else
+			alert(`${t('auth.loginError')}: ${error.message}`);
+		//console.error('Login error:', err);
+		if (submitBtn)
+			submitBtn.disabled = false;
+		return;
+	}
+
+	if (submitBtn)
+		submitBtn.disabled = false;
+}
+
+export function renderLoginPage() {
+    const app = document.querySelector<HTMLDivElement>('#app');
+    if (!app)
+		return;
+    app.innerHTML = "";
+    window.removeEventListener('languageChanged', updateLoginTranslations);
+    window.addEventListener('languageChanged', updateLoginTranslations);
+    
+    const container = document.createElement("div");
+    container.className = "max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg";
+    app.appendChild(container);
+
+    const h1 = document.createElement("h1");
+    h1.textContent = t('auth.welcomeBack');
+    h1.className = "text-3xl font-bold text-gray-800 mb-6 text-center";
+    container.appendChild(h1);
+
+    const form = document.createElement("form");
+    form.className = "space-y-4";
+    container.appendChild(form);
+
+		const usernameField = document.createElement("input");
+		usernameField.type = "text";
+		usernameField.placeholder = t('forms.username');
+		usernameField.className = "w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500";
+		usernameField.setAttribute('data-auth', 'username');
+		form.appendChild(usernameField);
+
+    const password = document.createElement("input");
+    password.type = "password";
+    password.placeholder = t('forms.password');
+    password.className = "w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500";
+    form.appendChild(password);
+
+    const submitBtn = document.createElement("button");
+    submitBtn.type = "submit";
+    submitBtn.textContent = t('buttons.login');
+    submitBtn.className = "w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-200 ease-in-out transform hover:scale-105";
+    form.appendChild(submitBtn);
+
+    form.addEventListener("submit", (e) => {
+		e.preventDefault();
+			const credentialUsername = usernameField.value.trim();
+		const credentialPassword = password.value.trim();
+			loginWithCredentials(credentialUsername, credentialPassword, {
+			form,
+			heading: h1,
+			submitButton: submitBtn,
+		});
+    });
+}
+
+export function twoFALogin(form : HTMLFormElement, h1 : HTMLHeadingElement, user : any) {
+	h1.textContent = t('twoFA.enterCode')
+	form.innerHTML = "";
+	
+	const update2FATranslations = () => {
+		h1.textContent = t('twoFA.enterCode');
+		const twoFAInput = form.querySelector('input[type="text"]') as HTMLInputElement;
+		if (twoFAInput)
+			twoFAInput.placeholder = t('twoFA.enterCode');
+		const submitButton = form.querySelector('button') as HTMLButtonElement;
+		if (submitButton)
+			submitButton.textContent = t('buttons.submit');
+	};
+	window.addEventListener('languageChanged', update2FATranslations);
+	
+	const twoFAcode = document.createElement("input");
+	twoFAcode.type = "text";
+	twoFAcode.placeholder = t('twoFA.enterCode');
+    twoFAcode.className = "w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500";
+    form.appendChild(twoFAcode);
+	const submit2FA = document.createElement("button");
+    submit2FA.textContent = t('buttons.submit');
+    submit2FA.className = "w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-200 ease-in-out transform hover:scale-105";
+    form.appendChild(submit2FA);
+	submit2FA.addEventListener("click", () => {
+		submit2FA.disabled = true;
+		const credential2FACode = twoFAcode.value.trim();
+		if (!credential2FACode)
+		{
+			submit2FA.disabled = false;
+			return alert (t('twoFA.invalidCode'));
+		}
+		fetch('/api/login/2fa', {
+			method: "POST",
+			credentials: 'include',
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ userId: user.id, twoFAcode: credential2FACode }),
+		})
+		.then(async (res) => {
+			const data = await res.json();
+			if (!data.success) {
+				throw new Error(data.error || data.message || "Login failed");
+			}
+			return data;
+		})
+		.then(() => {
+			navigate('/');
+		})
+		.catch((err) => {
+        	alert(`${t('auth.loginError')}: ${err.message}`);
+        	//console.error("Login error:", err);
+			submit2FA.disabled = false;
+        });
+	});
+}
+
+export function editUserInfo(loggedUser : User) {
+	const app = document.querySelector<HTMLDivElement>('#app');
+    if (!app)
+		return;
+    app.innerHTML = "";
+	const form = document.createElement("div");
+	form.className = "fixed top-0 left-0 w-full h-full bg-black bg-opacity-40 flex justify-center items-center z-50";
+
+	const formBox = document.createElement("div");
+	formBox.className = "bg-white p-6 rounded-lg shadow-lg space-y-4 space-x-2 max-w-md w-full";
+  
+	const nameInput = document.createElement("input");
+	nameInput.type = "text";
+	nameInput.placeholder = t('userEdit.newName');
+	nameInput.value = loggedUser.name;
+	nameInput.className = "w-full border border-gray-300 px-3 py-2 rounded";
+
+	const infoInput = document.createElement("input");
+	infoInput.type = "text";
+	infoInput.placeholder = t('userEdit.newInfo');
+	infoInput.value = loggedUser.info;
+	infoInput.className = "w-full border border-gray-300 px-3 py-2 rounded";
+
+	const emailInput = document.createElement("input");
+	emailInput.type = "email";
+	emailInput.placeholder = t('userEdit.newEmail');
+	emailInput.value = loggedUser.email;
+	emailInput.className = "w-full border border-gray-300 px-3 py-2 rounded";
+
+	const passwordInput = document.createElement("input");
+	passwordInput.type = "password";
+	passwordInput.placeholder = t('userEdit.newPassword');
+	passwordInput.className = "w-full border border-gray-300 px-3 py-2 rounded";
+
+	const deleteProfilePicture = document.createElement("button");
+	deleteProfilePicture.textContent = "Delete Picture";
+	deleteProfilePicture.className = "bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded";
+
+	const saveButton = document.createElement("button");
+	saveButton.textContent = t('buttons.save');
+	saveButton.className = "bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded";
+
+	const cancelButton = document.createElement("button");
+	cancelButton.textContent = t('buttons.cancel');
+	cancelButton.className = "bg-gray-400 hover:bg-gray-500 text-white font-bold px-4 py-2 rounded";
+
+	formBox.append(nameInput, infoInput, emailInput, passwordInput, deleteProfilePicture, saveButton, cancelButton);
+	form.appendChild(formBox);
+	app.appendChild(form);
+
+	deleteProfilePicture.onclick = () => {
+		fetch(`/api/users/${loggedUser.id}/profile_picture`, {
+    		method: "DELETE",
+			credentials: "include",
+    	})
+    	.then(async (res) => {
+    		if (!res.ok) {
+        		const errData = await res.json();
+        		throw new Error(errData.error || "Failed to update");
+        	}
+        	return res.json();
+    	})
+    	.then(() => {})
+    	.catch((err) => {
+    		//console.error(err);
+    		alert(`${t('userEdit.updateError')}: ${err.message}`);
+    	});
+	};
+
+	cancelButton.onclick = () => navigate('/');
+
+	saveButton.onclick = () => {
+		const updatedUser = {
+			name: nameInput.value.trim(),
+			info: infoInput.value.trim(),
+			email: emailInput.value.trim(),
+			password: passwordInput.value.trim(),
+		};
+
+		fetch(`/api/users/${loggedUser.id}`, {
+    		method: "PUT",
+    		headers: { "Content-Type": "application/json" },
+    		body: JSON.stringify(updatedUser),
+    	})
+    	.then(async (res) => {
+    		if (!res.ok) {
+        		const errData = await res.json();
+        		throw new Error(errData.error || "Failed to update");
+        	}
+        	return res.json();
+    	})
+    	.then(() => {
+    		form.remove();
+    		navigate('/');
+    	})
+    	.catch((err) => {
+    		//console.error(err);
+    		alert(`${t('userEdit.updateError')}: ${err.message}`);
+    	});
+	};
+
+	const uploadLabel = document.createElement('label');
+	uploadLabel.textContent = 'Upload avatar';
+	const fileInput = document.createElement('input');
+	fileInput.type = 'file';
+	fileInput.accept = 'image/png, image/jpeg, image/webp';
+	uploadLabel.appendChild(fileInput);
+
+	const preview = document.createElement('img');
+	preview.style.width = '96px';
+	preview.style.height = '96px';
+	preview.style.objectFit = 'cover';
+	preview.style.borderRadius = '50%';
+	preview.alt = 'avatar preview';
+
+	formBox.appendChild(uploadLabel);
+	formBox.appendChild(preview);
+	fileInput.addEventListener('change', async () => {
+		const f = fileInput.files?.[0];
+		if (!f)
+			return;
+		preview.src = URL.createObjectURL(f);
+
+		try {
+			const imageUrl = await uploadProfilePicture(loggedUser.id, f);
+			preview.src = `${imageUrl}?t=${Date.now()}`;
+
+			const globalAvatar = document.getElementById('avatarImg') as HTMLImageElement | null;
+			if (globalAvatar)
+				globalAvatar.src = `${imageUrl}?t=${Date.now()}`;
+
+	    	alert('Upload successful');
+	  	} catch (err) {
+	    	//console.error('Upload error', err);
+	    	alert('Upload failed: ' + (err as Error).message);
+	  	}
+	});
+}
+
+async function uploadProfilePicture(userId: number, file: File): Promise<string> {
+  	const fd = new FormData();
+  	fd.append('file', file);
+
+  	const res = await fetch(`/api/users/${userId}/profile_picture`, {
+  		method: 'PUT',
+  		credentials: 'include',
+  		body: fd,
+  	});
+
+  	if (!res.ok) {
+  	  const err = await res.text().catch(() => null);
+  	  throw new Error(`Upload failed: ${res.status} ${res.statusText} ${err || ''}`);
+  	}
+
+  	const data = await res.json().catch(() => ({}));
+  	const url = data.url || (data.filename ? `/profile_pictures/${data.filename}` : (data.fileName ? `/profile_pictures/${data.fileName}` : null));
+  	return url;
+}

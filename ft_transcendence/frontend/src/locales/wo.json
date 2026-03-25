@@ -1,0 +1,180 @@
+{
+  "nav": {
+    "home": "Kër",
+    "profile": "Profil",
+    "friends": "Xaritt",
+    "settings": "Parameetar",
+    "users": "Jëfandikukat"
+  },
+  "buttons": {
+    "login": "Dugg",
+    "logout": "Génn",
+    "save": "Yokk jëfandikukat",
+    "cancel": "Neenal",
+    "edit": "Soppi",
+    "delete": "Far",
+    "submit": "Yónnee"
+  },
+  "messages": {
+    "welcome": "Dalal ak jàmm!",
+    "error": "Am na njuumte",
+    "success": "Jëfandikoo am na njàmm",
+    "loading": "Mi ngi yeb...",
+    "noData": "Amul benn xibaar"
+  },
+  "forms": {
+    "username": "Dugal turu jëfandikukat",
+    "password": "Dugal baatu jàll",
+    "email": "Dugal email",
+    "confirmPassword": "Feddali baatu jàll",
+    "userInfo": "Dugal xibaaru jëfandikukat"
+  },
+  "game": {
+    "play": "Ciyaar",
+    "score": "Poñ",
+    "winner": "Ndamkat",
+    "gameOver": "Ciyaar jeex na",
+    "invite": "Woote ciyaar",
+    "invitedLobby": "woo la nga dugg ci lobby",
+    "invitedGame": "woo la nga ciyaar"
+  },
+  "auth": {
+    "welcomeBack": "Dalal ak jàmm ci dellusi",
+    "signIn": "Dugg ci sa kont",
+    "forgotPassword": "Fàtte nga sa baatu jàll?",
+    "loginSuccess": "Dugg gi am na njàmm!",
+    "loginError": "Dugg gi lajj na",
+    "signupSuccess": "Kont bi sos na! Man nga dugg léegi.",
+    "createAccount": "Sos kont",
+    "signupSubtitle": "Soppi sa profil, woo xaritt yi, te yéeg ci rang.",
+    "continueGuest": "Kontine ni gan"
+  },
+  "profile": {
+    "welcome": "Dalal ak jàmm",
+    "userInfo": "Xibaaru jëfandikukat",
+    "enable2FA": "Doxal 2FA",
+    "logout": "Génn",
+    "friends": "Xaritt",
+    "matchHistory": "Taarixu ciyaar yi",
+    "stats": "Statistik",
+    "statsPlaceholder": "Sa taarixu ciyaar ak sa rang dinañu feeñ fii ci kanam."
+  },
+  "twoFA": {
+    "setup": "Tabax 2FA",
+    "scanQR": "Scanal QR Code bii ak sa app:",
+    "enterCode": "Dugal kode bu 6 sifr:",
+    "verify": "Feddali te doxal 2FA",
+    "backToProfile": "Dellu ci profil",
+    "setupSuccess": "2FA dox na ak njàmm!",
+    "setupError": "2FA manul a dox",
+    "invalidCode": "Kode bi baaxul",
+    "generate": "Sos 2FA",
+    "remove": "Dindi 2FA",
+    "chooseMethod": "Tann ni nga bëgg a tabax 2FA",
+    "sms": "SMS",
+    "qrCode": "QR Code",
+    "email": "Email",
+    "sendSMS": "Yónnee SMS",
+    "sendEmail": "Yónnee Email",
+    "enterCodePlaceholder": "Dugal kode",
+    "verifyCode": "Feddali kode",
+    "removeSuccess": "2FA dindi na ak njàmm!",
+    "enableSuccess": "2FA dox na ak njàmm!"
+  },
+  "validation": {
+    "enterName": "Dugal tur",
+    "enterUserInfo": "Dugal xibaaru jëfandikukat",
+    "enterEmail": "Dugal email",
+    "enterPassword": "Dugal baatu jàll",
+    "enterUsername": "Dugal turu jëfandikukat",
+    "addUserError": "Njuumte ci yokk jëfandikukat",
+    "fetchUsersError": "Njuumte ci jël jëfandikukat yi"
+  },
+  "userList": {
+    "userName": "Turu jëfandikukat",
+    "userInfo": "Xibaaru jëfandikukat",
+    "userEmail": "Emailu jëfandikukat"
+  },
+  "friends": {
+    "noFriends": "Amul xaritt yu ñu bind.",
+    "remove": "Dindi",
+    "confirmRemove": "Ndax bëgg nga dindi {name} ni sa xarit?",
+    "sendRequest": "Yónnee ñaan xaritt",
+    "addFriend": "Yokk xarit",
+    "enterUsername": "Dugal turu jëfandikukat",
+    "sendRequestBtn": "Yónnee ñaan",
+    "enterUsernameError": "Dugal turu jëfandikukat.",
+    "userNotFound": "Jëfandikukat gisul.",
+    "requestSent": "Ñaan xaritt yónnee na!",
+    "errorOccurred": "Am na njuumte.",
+    "friendRequests": "Ñaan xaritt yi",
+    "noPendingRequests": "Amul ñaan yu des.",
+    "from": "Jóge ci",
+    "accept": "Nangu",
+    "reject": "Bañ",
+    "failedToLoad": "Manul a yeb ñaan yi."
+  },
+  "chat": {
+    "typeMessage": "Bind bataaxal...",
+    "message": "Bataaxal",
+    "contextButton": "Botoŋ",
+    "openChat": "Ubbi chat",
+    "closeChat": "Tëj chat",
+    "minimize": "Wàññi"
+  },
+  "userEdit": {
+    "newName": "Tur bu bees",
+    "newInfo": "Xibaar bu bees",
+    "newEmail": "Email bu bees",
+    "newPassword": "Baatu jàll bu bees",
+    "updateError": "Njuumte ci soppi jëfandikukat"
+  },
+  "errors": {
+    "logoutFailed": "Manul a génn. Jéemaat."
+  },
+  "beforeGame": {
+    "gameName": "Air Hockey Lobby",
+    "paddleColor": "Melo paalet bi",
+    "facing": "Jubluwaay",
+    "player": "Ciyaar-kat",
+    "powerUps": "Power-Ups",
+    "doublePoints": "Poñ ñaar yoon",
+    "invisibleBall": "Baal bu mënum a gis",
+    "shrinkBall": "Baal bu tuuti",
+    "speedBoostBall": "Yokk gaaw baal bi",
+    "speedBoostPaddle": "Yokk gaaw paalet bi",
+    "enablePowerUps": "Doxal Power-Ups",
+    "off": "FAY",
+    "on": "TÀMBALI",
+    "ready": "Waaj na",
+    "notReady": "Waajul",
+    "matchMaking": "Tambali ciyaar",
+    "playersReady": "Ñaar ñi war nañu waajal seen bopp",
+    "emptyPowerUps": "Ñaar ñi war nañu tann Power-Ups",
+    "choose3": "Tann 3 Power-Ups",
+    "gameInProgress": "Ciyaar bi dafa dox",
+    "gameInProgressMessage": "Am nga ciyaar buy dox. Ndax bëgg nga dellu?",
+    "rejoinGame": "Dellu ci ciyaar bi",
+    "gamePaused": "Ciyaar bi taxaw na",
+    "waitingReturn": "Nu ngi xaar ba ciyaar-kat bi dellu...",
+    "noReturn": "Ciyaar-kat bi delluwul ci waxtu wi",
+    "later": "Gannaaw"
+  },
+  "Game": {
+    "controls": "Njiitu",
+    "startGame": "Tambali ciyaar",
+    "local": "Ciyaar bu lokal",
+    "home": "Kër",
+    "resume": "Kontine",
+    "pause": "Taxaw tuuti",
+    "firstGame": "Ciyaar bu njëkk",
+    "winRatio": "Ràññee ndam",
+    "wins": "Ndam",
+    "finalScore": "Poñ mujj",
+    "move": "Yëngu"
+  },
+  "FooterLinks": {
+    "privacyPolicy": "Politigu sutura",
+    "termsOfService": "Sart yi ak kondisyon yi"
+  }
+}

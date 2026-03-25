@@ -1,0 +1,19 @@
+FROM debian:oldstable
+
+# Install MariaDB server and client
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    mariadb-server
+
+COPY conf/my.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
+
+RUN mkdir -p /run/mysqld
+
+RUN chmod 644 /etc/mysql/mariadb.conf.d/50-server.cnf
+RUN chown mysql:mysql /etc/mysql/mariadb.conf.d/50-server.cnf
+RUN chown -R mysql:mysql /etc/mysql /var/lib/mysql /run/mysqld
+
+COPY tools/script.sh /script.sh
+
+RUN chmod 777 /script.sh
+
+CMD ["/script.sh"]

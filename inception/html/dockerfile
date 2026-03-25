@@ -1,0 +1,16 @@
+FROM debian:oldstable
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    lighttpd \
+    ca-certificates
+
+# Your static site content
+COPY ./www/ /var/www/html/
+
+
+COPY ./lighttpd.conf /etc/lighttpd/lighttpd.conf
+
+RUN chown -R www-data:www-data /var/www/html
+
+EXPOSE 8080
+CMD ["lighttpd","-D","-f","/etc/lighttpd/lighttpd.conf"]

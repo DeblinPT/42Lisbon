@@ -1,0 +1,33 @@
+FROM debian:oldstable
+
+# Install PHP-FPM and extensions
+RUN apt-get update && apt-get install -y \
+    wget \
+    curl \
+    iproute2 \
+    php-fpm \
+    php-mysql \
+    mariadb-client \
+    php-redis
+
+RUN mkdir -p /run/php && chmod 777 /run/php
+
+# Create webroot
+RUN mkdir -p /var/www/html/run/php && chmod 777 /var/www/html/run/php
+
+# Copy php-fpm pool config
+COPY ./default.conf /etc/php/8.2/fpm/pool.d/www.conf
+
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+
+RUN chmod +x wp-cli.phar
+
+RUN mv wp-cli.phar /usr/local/bin/wp
+
+COPY ./script.sh /script.sh
+
+RUN chmod 777 /script.sh
+
+EXPOSE 9000
+
+CMD ["/script.sh"]
